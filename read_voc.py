@@ -2,21 +2,20 @@ import numpy as np
 import os
 import random
 
-DATA_PATH = "./Data_zoo/VOCtrainval_11-May-2012/VOCdevkit/VOC2012/"
-def read_dateset():
-    segtxt = DATA_PATH + "ImageSets/Segmentation/"
-    train_rec = get_rec(segtxt, "train") 
-    val_rec = get_rec(segtxt, "val") 
+def read_dateset(data_path):
+    train_rec = get_rec(data_path, "train") 
+    val_rec = get_rec(data_path, "val") 
     return train_rec, val_rec
 
 def get_rec(segtxt, name):
+    segtxt = data_path + "ImageSets/Segmentation/"
     lst = []
     filename = segtxt + name + ".txt" 
     fin = open(filename)
     for line in fin.readlines():
         fn = line.strip()
-        image = DATA_PATH + "JPEGImages/" + fn + ".jpg"
-        ann = DATA_PATH + "SegmentationClass/" + fn + ".png"
+        image = data_path + "JPEGImages/" + fn + ".jpg"
+        ann = data_path + "SegmentationClass/" + fn + ".png"
         lst.append(dict({
             "image": image,
             "annotation":ann
