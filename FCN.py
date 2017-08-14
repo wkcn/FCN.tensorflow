@@ -10,6 +10,7 @@ from six.moves import xrange
 
 FLAGS = tf.flags.FLAGS
 tf.flags.DEFINE_integer("batch_size", "2", "batch size for training")
+tf.flags.DEFINE_integer("ignore_label", None, "ignore_label")
 tf.flags.DEFINE_string("logs_dir", "logs/", "path to logs directory")
 tf.flags.DEFINE_string("data_dir", "Data_zoo/MIT_SceneParsing/", "path to dataset")
 tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer")
@@ -149,8 +150,20 @@ def main(argv=None):
     tf.summary.image("input_image", image, max_outputs=2)
     tf.summary.image("ground_truth", tf.cast(annotation, tf.uint8), max_outputs=2)
     tf.summary.image("pred_annotation", tf.cast(pred_annotation, tf.uint8), max_outputs=2)
-    loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits,
-                                                                          labels=tf.squeeze(annotation, squeeze_dims=[3]),
+
+    # ignore label -1
+    sa = tf.squeeze(annotation, squeeze_dims = [3])
+    if ignore_label is not None:
+        print ("Ignore Label {}".format(ignore_label))
+        mask = tf.not_equal(sa, ignore_label)
+        logits_b = tf.boolean_mask(logits, mask) 
+        sa_b = tf.boolean_mask(sa, mask) 
+    else:
+        logits_b = logits
+        sa_b = sa 
+
+    loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits_b,
+                                                                          labels=sa_b,
                                                                           name="entropy")))
     tf.summary.scalar("entropy", loss)
 
